@@ -16,7 +16,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         libglib2.0-0 \
-        libgl1-mesa-glx \
+        libgl1 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security
