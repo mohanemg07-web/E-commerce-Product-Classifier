@@ -1,0 +1,47 @@
+# ============================================================
+# Smart E-commerce Product Classifier — Git Ignore
+# ============================================================
+
+# ── Data & Models (large files) ─────────────────────────────
+data/
+models/best_model.pth
+models/misclassified/
+
+# ── Python ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ── Virtual Environment ────────────────────────────────────
+venv/
+env/
+.venv/
+
+# ── IDE ─────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ── OS Files ────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Temp / Cache ────────────────────────────────────────────
+*.log
+*.tmp
+.cache/
+tmp/
+
+# ── Kaggle ──────────────────────────────────────────────────
+kaggle.json
+
+# ── Test data generator ────────────────────────────────────
+create_test_data.py

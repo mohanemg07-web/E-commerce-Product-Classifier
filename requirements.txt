@@ -1,0 +1,29 @@
+# ============================================================
+# Smart E-commerce Product Classifier — Dependencies
+# ============================================================
+
+# Deep Learning
+torch>=2.1.0
+torchvision>=0.16.0
+
+# Image Processing
+Pillow>=10.0.0
+
+# Scientific Computing
+numpy>=1.24.0
+scikit-learn>=1.3.0
+
+# Visualization
+matplotlib>=3.7.0
+seaborn>=0.12.0
+
+# API Framework
+flask>=3.0.0
+gunicorn>=21.2.0
+
+# Utilities
+tqdm>=4.65.0
+
+# Data Ingestion
+kaggle>=1.6.0
+pandas>=2.0.0
