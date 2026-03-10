@@ -27,3 +27,6 @@ tqdm>=4.65.0
 # Data Ingestion
 kaggle>=1.6.0
 pandas>=2.0.0
+
+# HTTP Client
+requests>=2.31.0

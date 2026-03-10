@@ -5,737 +5,714 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Product Classifier — AI-Powered Image Classification</title>
     <meta name="description" content="Classify e-commerce product images instantly using AI. Drag & drop or upload product photos for real-time category predictions.">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        /* ── CSS Variables / Design Tokens ───────────────────── */
         :root {
-            --bg-primary: #0a0a1a;
-            --bg-secondary: #12122a;
-            --bg-card: rgba(22, 22, 50, 0.8);
-            --bg-glass: rgba(255, 255, 255, 0.04);
-            --border-subtle: rgba(255, 255, 255, 0.08);
-            --border-active: rgba(99, 102, 241, 0.5);
+            --bg: #06060e;
+            --surface: #0d0d1a;
+            --surface-2: #13132a;
+            --surface-3: #1a1a3a;
+            --glass: rgba(255,255,255,0.03);
+            --glass-border: rgba(255,255,255,0.06);
+            --glass-border-hover: rgba(255,255,255,0.12);
 
-            --text-primary: #f0f0ff;
-            --text-secondary: #8a8aad;
-            --text-muted: #5a5a7a;
+            --text: #eeeef8;
+            --text-2: #9494b8;
+            --text-3: #5c5c80;
 
-            --accent-indigo: #6366f1;
-            --accent-violet: #8b5cf6;
-            --accent-cyan: #22d3ee;
-            --accent-green: #34d399;
-            --accent-amber: #fbbf24;
-            --accent-rose: #fb7185;
+            --indigo: #7c3aed;
+            --blue: #3b82f6;
+            --cyan: #06b6d4;
+            --emerald: #10b981;
+            --amber: #f59e0b;
+            --rose: #f43f5e;
+            --pink: #ec4899;
 
-            --gradient-main: linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7);
-            --gradient-glow: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.2));
-            --gradient-card: linear-gradient(135deg, rgba(22,22,50,0.9), rgba(15,15,35,0.95));
+            --glow-indigo: rgba(124, 58, 237, 0.25);
+            --glow-blue: rgba(59, 130, 246, 0.15);
 
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 20px;
-            --radius-xl: 24px;
-
-            --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.15);
-            --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.3);
-
-            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --font: 'Inter', system-ui, -apple-system, sans-serif;
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* ── Reset & Base ────────────────────────────────────── */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+        html { height: 100%; }
         body {
             font-family: var(--font);
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            background: var(--bg);
+            color: var(--text);
             min-height: 100vh;
             overflow-x: hidden;
-            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* ── Animated Background ─────────────────────────────── */
-        .bg-grid {
-            position: fixed; inset: 0; z-index: 0;
-            background-image:
-                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99,102,241,0.12), transparent),
-                radial-gradient(ellipse 60% 40% at 80% 80%, rgba(139,92,246,0.08), transparent);
+        /* ── Ambient Background ─────────────────────────────── */
+        .ambient {
+            position: fixed; inset: 0; z-index: 0; overflow: hidden;
+            pointer-events: none;
         }
-        .bg-grid::before {
-            content: '';
-            position: absolute; inset: 0;
-            background-image:
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 60px 60px;
-        }
-
-        /* ── Layout ──────────────────────────────────────────── */
-        .app { position: relative; z-index: 1; }
-
-        .container {
-            max-width: 960px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
-
-        /* ── Header ──────────────────────────────────────────── */
-        header {
-            padding: 40px 0 20px;
-            text-align: center;
-        }
-
-        .logo {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-        .logo-icon {
-            width: 48px; height: 48px;
-            background: var(--gradient-main);
-            border-radius: var(--radius-md);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 24px;
-            box-shadow: var(--shadow-glow);
-        }
-        .logo-text {
-            font-size: 28px;
-            font-weight: 800;
-            background: var(--gradient-main);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: -0.5px;
-        }
-
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 16px;
-            font-weight: 400;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-
-        /* ── Stats Bar ───────────────────────────────────────── */
-        .stats-bar {
-            display: flex;
-            justify-content: center;
-            gap: 32px;
-            margin: 24px 0 32px;
-            flex-wrap: wrap;
-        }
-        .stat {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: var(--bg-glass);
-            border: 1px solid var(--border-subtle);
-            border-radius: 100px;
-            font-size: 13px;
-            color: var(--text-secondary);
-            transition: var(--transition);
-        }
-        .stat:hover { border-color: var(--border-active); }
-        .stat-dot {
-            width: 8px; height: 8px;
+        .orb {
+            position: absolute;
             border-radius: 50%;
-            animation: pulse-dot 2s infinite;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 20s infinite ease-in-out;
         }
-        .stat-dot.green { background: var(--accent-green); }
-        .stat-dot.cyan { background: var(--accent-cyan); }
-        .stat-dot.violet { background: var(--accent-violet); }
-        .stat-value { color: var(--text-primary); font-weight: 600; }
-
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+        .orb-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, var(--indigo), transparent 70%);
+            top: -15%; left: -10%;
+            animation-delay: 0s;
+        }
+        .orb-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, var(--blue), transparent 70%);
+            bottom: -10%; right: -5%;
+            animation-delay: -7s;
+            animation-duration: 25s;
+        }
+        .orb-3 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, var(--pink), transparent 70%);
+            top: 50%; left: 60%;
+            opacity: 0.2;
+            animation-delay: -14s;
+            animation-duration: 30s;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -40px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(15px, 35px) scale(1.02); }
         }
 
-        /* ── Upload Zone ─────────────────────────────────────── */
-        .upload-zone {
-            position: relative;
-            border: 2px dashed var(--border-subtle);
-            border-radius: var(--radius-xl);
-            padding: 60px 40px;
+        .noise {
+            position: fixed; inset: 0; z-index: 0;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+
+        /* ── App Shell ──────────────────────────────────────── */
+        .app {
+            position: relative; z-index: 1;
+            display: flex; flex-direction: column;
+            min-height: 100vh;
+        }
+        .container { max-width: 880px; margin: 0 auto; padding: 0 20px; width: 100%; }
+
+        /* ── Nav ────────────────────────────────────────────── */
+        nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        .brand {
+            display: flex; align-items: center; gap: 10px;
+            text-decoration: none;
+        }
+        .brand-icon {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--indigo), var(--blue));
+            border-radius: 10px;
+            display: grid; place-items: center;
+            font-size: 18px;
+            box-shadow: 0 0 20px var(--glow-indigo);
+        }
+        .brand-name {
+            font-size: 18px; font-weight: 700; color: var(--text);
+            letter-spacing: -0.3px;
+        }
+        .nav-pills {
+            display: flex; gap: 6px;
+        }
+        .pill {
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 12px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 100px;
+            font-size: 12px; color: var(--text-2);
+            transition: all 0.2s var(--ease);
+        }
+        .pill:hover { border-color: var(--glass-border-hover); }
+        .dot { width: 6px; height: 6px; border-radius: 50%; }
+        .dot-green { background: var(--emerald); box-shadow: 0 0 8px rgba(16,185,129,0.5); }
+        .dot-blue { background: var(--blue); box-shadow: 0 0 8px rgba(59,130,246,0.4); }
+        .pill-val { color: var(--text); font-weight: 600; }
+
+        /* ── Hero ───────────────────────────────────────────── */
+        .hero {
             text-align: center;
-            cursor: pointer;
-            transition: var(--transition);
-            background: var(--gradient-card);
-            backdrop-filter: blur(20px);
-            overflow: hidden;
+            padding: 28px 0 20px;
         }
-        .upload-zone::before {
-            content: '';
-            position: absolute; inset: 0;
-            background: var(--gradient-glow);
-            opacity: 0;
-            transition: var(--transition);
-        }
-        .upload-zone:hover,
-        .upload-zone.dragover {
-            border-color: var(--accent-indigo);
-            box-shadow: var(--shadow-glow);
-        }
-        .upload-zone:hover::before,
-        .upload-zone.dragover::before {
-            opacity: 1;
-        }
-
-        .upload-icon {
-            position: relative; z-index: 1;
-            width: 80px; height: 80px;
-            margin: 0 auto 20px;
-            background: var(--gradient-main);
-            border-radius: var(--radius-lg);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 36px;
-            box-shadow: var(--shadow-glow);
-            transition: var(--transition);
-        }
-        .upload-zone:hover .upload-icon {
-            transform: scale(1.05) translateY(-4px);
-        }
-
-        .upload-title {
-            position: relative; z-index: 1;
-            font-size: 20px;
-            font-weight: 600;
+        .hero h1 {
+            font-size: 32px; font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1.15;
             margin-bottom: 8px;
         }
-        .upload-subtitle {
-            position: relative; z-index: 1;
-            color: var(--text-secondary);
-            font-size: 14px;
+        .hero h1 .gradient {
+            background: linear-gradient(135deg, #a78bfa, #7c3aed, #3b82f6);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        .upload-subtitle span {
-            color: var(--accent-indigo);
-            font-weight: 500;
-            text-decoration: underline;
-            text-underline-offset: 2px;
+        .hero p {
+            color: var(--text-2); font-size: 14px;
+            max-width: 420px; margin: 0 auto;
         }
 
-        .upload-formats {
-            position: relative; z-index: 1;
-            margin-top: 16px;
-            display: flex;
-            justify-content: center;
-            gap: 8px;
+        /* ── Input Section (Upload + URL in one card) ─────── */
+        .input-card {
+            background: linear-gradient(135deg, var(--surface), var(--surface-2));
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            transition: border-color 0.3s var(--ease);
         }
-        .format-badge {
-            padding: 4px 10px;
-            background: var(--bg-glass);
-            border: 1px solid var(--border-subtle);
-            border-radius: 100px;
-            font-size: 11px;
-            color: var(--text-muted);
-            font-weight: 500;
-            text-transform: uppercase;
-        }
+        .input-card:hover { border-color: var(--glass-border-hover); }
 
+        .drop-area {
+            display: flex; align-items: center; gap: 20px;
+            padding: 20px;
+            border: 1.5px dashed var(--glass-border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s var(--ease);
+            background: var(--glass);
+        }
+        .drop-area:hover, .drop-area.dragover {
+            border-color: var(--indigo);
+            background: rgba(124,58,237,0.05);
+            box-shadow: 0 0 30px rgba(124,58,237,0.08);
+        }
+        .drop-icon {
+            width: 48px; height: 48px; flex-shrink: 0;
+            background: linear-gradient(135deg, var(--indigo), var(--blue));
+            border-radius: 12px;
+            display: grid; place-items: center;
+            font-size: 22px;
+            box-shadow: 0 4px 16px var(--glow-indigo);
+            transition: transform 0.3s var(--ease);
+        }
+        .drop-area:hover .drop-icon { transform: scale(1.08); }
+        .drop-text h3 {
+            font-size: 14px; font-weight: 600; margin-bottom: 2px;
+        }
+        .drop-text p {
+            font-size: 12px; color: var(--text-3);
+        }
+        .drop-text p a {
+            color: var(--indigo); text-decoration: none; font-weight: 500;
+        }
+        .drop-text p a:hover { text-decoration: underline; }
+        .formats {
+            display: flex; gap: 4px; margin-top: 6px;
+        }
+        .fmt {
+            padding: 2px 8px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--glass-border);
+            border-radius: 4px;
+            font-size: 10px; color: var(--text-3);
+            font-weight: 600; text-transform: uppercase;
+        }
         #file-input { display: none; }
 
-        /* ── Preview Section ─────────────────────────────────── */
-        .preview-section {
-            display: none;
-            margin-top: 32px;
-            background: var(--gradient-card);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-xl);
-            overflow: hidden;
-            box-shadow: var(--shadow-card);
-            animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        .sep {
+            display: flex; align-items: center; gap: 12px;
+            margin: 16px 0;
+            font-size: 11px; color: var(--text-3); font-weight: 500;
+            text-transform: uppercase; letter-spacing: 1px;
         }
-        .preview-section.visible { display: block; }
+        .sep::before, .sep::after {
+            content: ''; flex: 1; height: 1px;
+            background: var(--glass-border);
+        }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
+        .url-row {
+            display: flex; gap: 8px;
+        }
+        .url-field {
+            flex: 1;
+            padding: 10px 14px;
+            background: var(--surface);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: var(--font); font-size: 13px;
+            outline: none;
+            transition: all 0.2s var(--ease);
+        }
+        .url-field::placeholder { color: var(--text-3); }
+        .url-field:focus {
+            border-color: var(--indigo);
+            box-shadow: 0 0 0 3px var(--glow-indigo);
+        }
+        .btn-go {
+            padding: 10px 22px;
+            background: linear-gradient(135deg, var(--indigo), var(--blue));
+            border: none; border-radius: 10px;
+            color: white; font-family: var(--font);
+            font-size: 13px; font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s var(--ease);
+            white-space: nowrap;
+        }
+        .btn-go:hover {
+            box-shadow: 0 4px 20px var(--glow-indigo);
+            transform: translateY(-1px);
+        }
+        .btn-go:active { transform: translateY(0); }
+        .btn-go:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+        /* ── Category Chips ─────────────────────────────────── */
+        .cats {
+            display: flex; justify-content: center; gap: 8px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+        .cat-chip {
+            display: flex; align-items: center; gap: 5px;
+            padding: 5px 12px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 100px;
+            font-size: 11px; color: var(--text-2);
+            transition: all 0.2s var(--ease);
+        }
+        .cat-chip:hover { border-color: var(--glass-border-hover); background: rgba(255,255,255,0.05); }
+        .cat-emoji { font-size: 13px; }
+
+        /* ── Result Card ────────────────────────────────────── */
+        .result-card {
+            display: none;
+            margin-top: 16px;
+            background: linear-gradient(135deg, var(--surface), var(--surface-2));
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            overflow: hidden;
+            animation: revealUp 0.5s var(--ease);
+            position: relative;
+        }
+        .result-card.visible { display: block; }
+
+        @keyframes revealUp {
+            from { opacity: 0; transform: translateY(16px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .preview-grid {
+        .result-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0;
+            grid-template-columns: 260px 1fr;
         }
 
-        /* ── Image Preview ───────────────────────────────────── */
-        .image-panel {
-            padding: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0,0,0,0.2);
-            min-height: 320px;
-            position: relative;
+        .img-box {
+            padding: 16px;
+            background: rgba(0,0,0,0.25);
+            display: flex; align-items: center; justify-content: center;
         }
-        .image-panel img {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: var(--radius-md);
+        .img-box img {
+            max-width: 100%; max-height: 220px;
+            border-radius: 8px;
             object-fit: contain;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.4);
         }
 
-        /* ── Results Panel ───────────────────────────────────── */
-        .results-panel {
-            padding: 32px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+        .res-body { padding: 20px 24px; }
+        .res-top {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .res-title { font-size: 15px; font-weight: 700; }
+
+        .badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 12px; border-radius: 100px;
+            font-size: 11px; font-weight: 600;
+        }
+        .badge-ok {
+            background: rgba(16,185,129,0.1);
+            color: var(--emerald);
+            border: 1px solid rgba(16,185,129,0.2);
+        }
+        .badge-warn {
+            background: rgba(245,158,11,0.1);
+            color: var(--amber);
+            border: 1px solid rgba(245,158,11,0.2);
         }
 
-        .results-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
+        .preds { display: flex; flex-direction: column; gap: 10px; }
+        .pred {
+            animation: slideRight 0.35s var(--ease) backwards;
         }
-        .results-title {
-            font-size: 18px;
-            font-weight: 700;
-        }
+        .pred:nth-child(1) { animation-delay: 0.05s; }
+        .pred:nth-child(2) { animation-delay: 0.15s; }
+        .pred:nth-child(3) { animation-delay: 0.25s; }
 
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 14px;
-            border-radius: 100px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-        .status-badge.auto-tagged {
-            background: rgba(52, 211, 153, 0.12);
-            color: var(--accent-green);
-            border: 1px solid rgba(52, 211, 153, 0.2);
-        }
-        .status-badge.needs-review {
-            background: rgba(251, 191, 36, 0.12);
-            color: var(--accent-amber);
-            border: 1px solid rgba(251, 191, 36, 0.2);
-        }
-
-        /* ── Prediction Bars ─────────────────────────────────── */
-        .prediction-list {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .prediction-item {
-            animation: fadeInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) backwards;
-        }
-        .prediction-item:nth-child(1) { animation-delay: 0.1s; }
-        .prediction-item:nth-child(2) { animation-delay: 0.2s; }
-        .prediction-item:nth-child(3) { animation-delay: 0.3s; }
-
-        @keyframes fadeInRight {
-            from { opacity: 0; transform: translateX(20px); }
+        @keyframes slideRight {
+            from { opacity: 0; transform: translateX(12px); }
             to { opacity: 1; transform: translateX(0); }
         }
 
-        .pred-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
+        .pred-row {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 4px;
         }
+        .pred-label { font-size: 13px; font-weight: 600; }
         .pred-rank {
-            font-size: 11px;
-            font-weight: 600;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 10px; color: var(--text-3); font-weight: 700;
+            margin-right: 6px; text-transform: uppercase;
         }
-        .pred-category {
-            font-size: 15px;
-            font-weight: 600;
-        }
-        .pred-confidence {
-            font-size: 14px;
-            font-weight: 700;
+        .pred-pct {
+            font-size: 13px; font-weight: 700;
             font-variant-numeric: tabular-nums;
         }
 
-        .pred-bar {
-            height: 6px;
-            background: rgba(255,255,255,0.06);
-            border-radius: 100px;
-            overflow: hidden;
-        }
-        .pred-bar-fill {
-            height: 100%;
-            border-radius: 100px;
-            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 0%;
-        }
+        .bar { height: 5px; background: rgba(255,255,255,0.05); border-radius: 100px; overflow: hidden; }
+        .bar-fill { height: 100%; border-radius: 100px; width: 0%; transition: width 0.7s var(--ease); }
 
-        .pred-1 .pred-confidence { color: var(--accent-indigo); }
-        .pred-1 .pred-bar-fill { background: var(--gradient-main); }
-        .pred-2 .pred-confidence { color: var(--accent-cyan); }
-        .pred-2 .pred-bar-fill { background: var(--accent-cyan); }
-        .pred-3 .pred-confidence { color: var(--accent-violet); }
-        .pred-3 .pred-bar-fill { background: var(--accent-violet); }
+        .pred:nth-child(1) .pred-pct { color: var(--indigo); }
+        .pred:nth-child(1) .bar-fill { background: linear-gradient(90deg, var(--indigo), var(--blue)); }
+        .pred:nth-child(2) .pred-pct { color: var(--cyan); }
+        .pred:nth-child(2) .bar-fill { background: var(--cyan); }
+        .pred:nth-child(3) .pred-pct { color: var(--pink); }
+        .pred:nth-child(3) .bar-fill { background: var(--pink); }
 
-        /* ── Metadata Footer ─────────────────────────────────── */
-        .meta-footer {
-            display: flex;
-            gap: 24px;
-            margin-top: 24px;
-            padding-top: 16px;
-            border-top: 1px solid var(--border-subtle);
+        .res-meta {
+            display: flex; gap: 16px;
+            margin-top: 14px; padding-top: 10px;
+            border-top: 1px solid var(--glass-border);
+            font-size: 11px; color: var(--text-3);
         }
-        .meta-item {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-        .meta-item strong {
-            color: var(--text-secondary);
-            font-weight: 500;
-        }
+        .res-meta strong { color: var(--text-2); font-weight: 500; }
 
-        /* ── Loading State ───────────────────────────────────── */
-        .loading-overlay {
-            display: none;
-            position: absolute;
-            inset: 0;
-            background: rgba(10, 10, 26, 0.85);
-            backdrop-filter: blur(8px);
-            z-index: 10;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 16px;
-            border-radius: var(--radius-xl);
+        /* ── Loading ────────────────────────────────────────── */
+        .loader {
+            display: none; position: absolute; inset: 0; z-index: 5;
+            background: rgba(6,6,14,0.85); backdrop-filter: blur(8px);
+            border-radius: 16px;
+            place-items: center;
         }
-        .loading-overlay.visible {
-            display: flex;
-        }
-        .spinner {
-            width: 40px; height: 40px;
-            border: 3px solid var(--border-subtle);
-            border-top-color: var(--accent-indigo);
+        .loader.on { display: grid; }
+        .loader-inner { text-align: center; }
+        .spin {
+            width: 32px; height: 32px; margin: 0 auto 10px;
+            border: 3px solid var(--glass-border);
+            border-top-color: var(--indigo);
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            animation: spin 0.7s linear infinite;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+        .loader-inner p { font-size: 13px; color: var(--text-2); }
 
-        .loading-text {
-            font-size: 14px;
-            color: var(--text-secondary);
+        /* ── Secondary actions ──────────────────────────────── */
+        .actions {
+            display: none; justify-content: center; margin-top: 10px;
         }
-
-        /* ── Error Toast ─────────────────────────────────────── */
-        .toast {
-            position: fixed;
-            bottom: 24px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            padding: 14px 24px;
-            background: rgba(251, 113, 133, 0.15);
-            border: 1px solid rgba(251, 113, 133, 0.3);
-            border-radius: var(--radius-md);
-            color: var(--accent-rose);
-            font-size: 14px;
-            font-weight: 500;
-            z-index: 100;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(12px);
-        }
-        .toast.visible {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        /* ── New Image Button ────────────────────────────────── */
-        .btn-new {
-            display: none;
-            margin: 24px auto 0;
-            padding: 12px 28px;
-            background: var(--bg-glass);
-            border: 1px solid var(--border-subtle);
+        .actions.on { display: flex; }
+        .btn-reset {
+            padding: 8px 20px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
             border-radius: 100px;
-            color: var(--text-secondary);
-            font-family: var(--font);
-            font-size: 14px;
-            font-weight: 500;
+            color: var(--text-2);
+            font-family: var(--font); font-size: 12px; font-weight: 500;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.2s var(--ease);
         }
-        .btn-new.visible { display: inline-flex; align-items: center; gap: 8px; }
-        .btn-new:hover {
-            border-color: var(--border-active);
-            color: var(--text-primary);
-            background: rgba(99,102,241,0.08);
+        .btn-reset:hover {
+            border-color: var(--indigo); color: var(--text);
+            background: rgba(124,58,237,0.08);
         }
 
-        /* ── Footer ──────────────────────────────────────────── */
+        /* ── Toast ──────────────────────────────────────────── */
+        .toast {
+            position: fixed; bottom: 20px; left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            padding: 10px 20px;
+            background: rgba(244,63,94,0.12);
+            border: 1px solid rgba(244,63,94,0.25);
+            backdrop-filter: blur(12px);
+            border-radius: 10px;
+            color: var(--rose); font-size: 13px; font-weight: 500;
+            z-index: 100;
+            transition: transform 0.35s var(--ease);
+        }
+        .toast.on { transform: translateX(-50%) translateY(0); }
+
+        /* ── Footer ─────────────────────────────────────────── */
         footer {
+            margin-top: auto;
+            padding: 14px 0;
             text-align: center;
-            padding: 48px 0 32px;
-            color: var(--text-muted);
-            font-size: 13px;
+            font-size: 11px; color: var(--text-3);
+            border-top: 1px solid var(--glass-border);
         }
-        footer a {
-            color: var(--accent-indigo);
-            text-decoration: none;
-        }
+        footer a { color: var(--indigo); text-decoration: none; }
         footer a:hover { text-decoration: underline; }
 
-        /* ── Responsive ──────────────────────────────────────── */
-        @media (max-width: 700px) {
-            .preview-grid {
-                grid-template-columns: 1fr;
-            }
-            .image-panel { min-height: 200px; padding: 24px; }
-            .results-panel { padding: 24px; }
-            .stats-bar { gap: 12px; }
-            .stat { font-size: 12px; padding: 6px 12px; }
-            header { padding: 24px 0 12px; }
+        /* ── Responsive ─────────────────────────────────────── */
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 24px; }
+            .result-grid { grid-template-columns: 1fr; }
+            .img-box { min-height: 160px; }
+            .nav-pills { display: none; }
         }
     </style>
 </head>
 <body>
-    <div class="bg-grid"></div>
+    <!-- Ambient BG -->
+    <div class="ambient">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+    <div class="noise"></div>
 
     <div class="app">
         <div class="container">
-            <!-- Header -->
-            <header>
-                <div class="logo">
-                    <div class="logo-icon">🛒</div>
-                    <span class="logo-text">Smart Classifier</span>
-                </div>
-                <p class="subtitle">AI-powered product image classification. Drag & drop an image to get instant predictions.</p>
-            </header>
-
-            <!-- Stats -->
-            <div class="stats-bar" id="stats-bar">
-                <div class="stat">
-                    <span class="stat-dot green"></span>
-                    Model: <span class="stat-value" id="stat-status">Loading…</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-dot cyan"></span>
-                    Accuracy: <span class="stat-value">99.01%</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-dot violet"></span>
-                    Classes: <span class="stat-value" id="stat-classes">—</span>
-                </div>
-            </div>
-
-            <!-- Upload Zone -->
-            <div class="upload-zone" id="upload-zone">
-                <div class="upload-icon">📸</div>
-                <div class="upload-title">Drop your product image here</div>
-                <div class="upload-subtitle">or <span>browse files</span> from your computer</div>
-                <div class="upload-formats">
-                    <span class="format-badge">JPG</span>
-                    <span class="format-badge">PNG</span>
-                    <span class="format-badge">WebP</span>
-                    <span class="format-badge">BMP</span>
-                </div>
-                <input type="file" id="file-input" accept="image/*">
-            </div>
-
-            <!-- Preview + Results -->
-            <div class="preview-section" id="preview-section">
-                <div class="loading-overlay" id="loading">
-                    <div class="spinner"></div>
-                    <div class="loading-text">Classifying image…</div>
-                </div>
-                <div class="preview-grid">
-                    <div class="image-panel">
-                        <img id="preview-img" src="" alt="Uploaded product image">
+            <!-- Navigation -->
+            <nav>
+                <a class="brand" href="/">
+                    <div class="brand-icon">🛒</div>
+                    <span class="brand-name">Smart Classifier</span>
+                </a>
+                <div class="nav-pills">
+                    <div class="pill">
+                        <span class="dot dot-green"></span>
+                        <span class="pill-val" id="stat-status">Loading…</span>
                     </div>
-                    <div class="results-panel" id="results-panel">
-                        <div class="results-header">
-                            <span class="results-title">Predictions</span>
-                            <span class="status-badge" id="status-badge"></span>
+                    <div class="pill">
+                        <span class="dot dot-blue"></span>
+                        Acc: <span class="pill-val">99.01%</span>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Hero -->
+            <section class="hero">
+                <h1>Classify Products <span class="gradient">Instantly</span></h1>
+                <p>Upload or paste a product image URL — our AI identifies the category in milliseconds.</p>
+            </section>
+
+            <!-- Input Card -->
+            <div class="input-card" id="input-card">
+                <div class="drop-area" id="drop-area">
+                    <div class="drop-icon">📸</div>
+                    <div class="drop-text">
+                        <h3>Drop an image here</h3>
+                        <p>or <a id="browse-link">browse files</a></p>
+                        <div class="formats">
+                            <span class="fmt">JPG</span>
+                            <span class="fmt">PNG</span>
+                            <span class="fmt">WEBP</span>
+                            <span class="fmt">BMP</span>
                         </div>
-                        <div class="prediction-list" id="prediction-list"></div>
-                        <div class="meta-footer" id="meta-footer"></div>
+                    </div>
+                    <input type="file" id="file-input" accept="image/*">
+                </div>
+
+                <div class="sep">or paste URL</div>
+
+                <div class="url-row">
+                    <input type="url" class="url-field" id="url-input"
+                           placeholder="https://example.com/product-image.jpg" autocomplete="off">
+                    <button class="btn-go" id="btn-url">Classify →</button>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="cats">
+                <div class="cat-chip"><span class="cat-emoji">👕</span> Apparel</div>
+                <div class="cat-chip"><span class="cat-emoji">👜</span> Accessories</div>
+                <div class="cat-chip"><span class="cat-emoji">👟</span> Footwear</div>
+                <div class="cat-chip"><span class="cat-emoji">🧴</span> Personal Care</div>
+            </div>
+
+            <!-- Result Card -->
+            <div class="result-card" id="result-card">
+                <div class="loader" id="loader">
+                    <div class="loader-inner">
+                        <div class="spin"></div>
+                        <p>Analyzing image…</p>
+                    </div>
+                </div>
+                <div class="result-grid">
+                    <div class="img-box">
+                        <img id="preview-img" src="" alt="Product">
+                    </div>
+                    <div class="res-body">
+                        <div class="res-top">
+                            <span class="res-title">Predictions</span>
+                            <span class="badge" id="badge"></span>
+                        </div>
+                        <div class="preds" id="preds"></div>
+                        <div class="res-meta" id="meta"></div>
                     </div>
                 </div>
             </div>
 
-            <button class="btn-new" id="btn-new" onclick="resetUI()">
-                ↻ Classify another image
-            </button>
+            <div class="actions" id="actions">
+                <button class="btn-reset" onclick="resetUI()">↻ Classify another image</button>
+            </div>
         </div>
 
         <footer>
-            Powered by <strong>ResNet50</strong> · Built with PyTorch & Flask ·
+            Powered by <strong>ResNet50</strong> · PyTorch & Flask ·
             <a href="/health" target="_blank">API Health</a>
         </footer>
     </div>
 
-    <!-- Toast -->
     <div class="toast" id="toast"></div>
 
     <script>
-    // ── Configuration ────────────────────────────────────────
-    const API_URL = window.location.origin;
+    const API = window.location.origin;
+    const $ = id => document.getElementById(id);
 
-    // ── DOM Elements ─────────────────────────────────────────
-    const uploadZone    = document.getElementById('upload-zone');
-    const fileInput     = document.getElementById('file-input');
-    const previewSection= document.getElementById('preview-section');
-    const previewImg    = document.getElementById('preview-img');
-    const loading       = document.getElementById('loading');
-    const predictionList= document.getElementById('prediction-list');
-    const statusBadge   = document.getElementById('status-badge');
-    const metaFooter    = document.getElementById('meta-footer');
-    const btnNew        = document.getElementById('btn-new');
-    const toast         = document.getElementById('toast');
-    const statStatus    = document.getElementById('stat-status');
-    const statClasses   = document.getElementById('stat-classes');
+    const dropArea   = $('drop-area');
+    const fileInput  = $('file-input');
+    const urlInput   = $('url-input');
+    const btnUrl     = $('btn-url');
+    const inputCard  = $('input-card');
+    const resultCard = $('result-card');
+    const loader     = $('loader');
+    const previewImg = $('preview-img');
+    const preds      = $('preds');
+    const badge      = $('badge');
+    const meta       = $('meta');
+    const actions    = $('actions');
+    const toast      = $('toast');
+    const statStatus = $('stat-status');
+    const catsDiv    = document.querySelector('.cats');
 
-    // ── Health Check ─────────────────────────────────────────
-    async function checkHealth() {
+    // Health check
+    (async () => {
         try {
-            const resp = await fetch(`${API_URL}/health`);
-            const data = await resp.json();
-            statStatus.textContent = data.model_loaded ? 'Ready' : 'No Model';
-            statStatus.style.color = data.model_loaded
-                ? 'var(--accent-green)' : 'var(--accent-amber)';
+            const r = await fetch(`${API}/health`);
+            const d = await r.json();
+            statStatus.textContent = d.model_loaded ? 'Ready' : 'No Model';
+            statStatus.style.color = d.model_loaded ? 'var(--emerald)' : 'var(--amber)';
         } catch {
             statStatus.textContent = 'Offline';
-            statStatus.style.color = 'var(--accent-rose)';
+            statStatus.style.color = 'var(--rose)';
         }
-    }
-    checkHealth();
+    })();
 
-    // ── Drag & Drop ──────────────────────────────────────────
-    uploadZone.addEventListener('click', () => fileInput.click());
+    // Drag & Drop
+    dropArea.addEventListener('click', () => fileInput.click());
+    $('browse-link').addEventListener('click', e => { e.stopPropagation(); fileInput.click(); });
 
-    uploadZone.addEventListener('dragover', e => {
-        e.preventDefault();
-        uploadZone.classList.add('dragover');
+    dropArea.addEventListener('dragover', e => { e.preventDefault(); dropArea.classList.add('dragover'); });
+    dropArea.addEventListener('dragleave', () => dropArea.classList.remove('dragover'));
+    dropArea.addEventListener('drop', e => {
+        e.preventDefault(); dropArea.classList.remove('dragover');
+        const f = e.dataTransfer.files[0];
+        if (f && f.type.startsWith('image/')) handleFile(f);
+        else showToast('Drop a valid image file.');
     });
-    uploadZone.addEventListener('dragleave', () => {
-        uploadZone.classList.remove('dragover');
-    });
-    uploadZone.addEventListener('drop', e => {
-        e.preventDefault();
-        uploadZone.classList.remove('dragover');
-        const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) handleFile(file);
-        else showToast('Please drop a valid image file.');
-    });
+    fileInput.addEventListener('change', e => { if (e.target.files[0]) handleFile(e.target.files[0]); });
 
-    fileInput.addEventListener('change', e => {
-        if (e.target.files[0]) handleFile(e.target.files[0]);
-    });
-
-    // ── File Handler ─────────────────────────────────────────
+    // File upload
     function handleFile(file) {
-        // Show preview
         const reader = new FileReader();
         reader.onload = e => {
-            previewImg.src = e.target.result;
-            previewSection.classList.add('visible');
-            uploadZone.style.display = 'none';
-            btnNew.classList.add('visible');
-            loading.classList.add('visible');
+            showResult(e.target.result);
             classify(file);
         };
         reader.readAsDataURL(file);
     }
 
-    // ── Classify API Call ────────────────────────────────────
-    async function classify(file) {
-        const formData = new FormData();
-        formData.append('image', file);
+    // URL classify
+    async function classifyUrl() {
+        const url = urlInput.value.trim();
+        if (!url) return showToast('Enter an image URL.');
+        showResult(url);
+        btnUrl.disabled = true;
 
         try {
-            const startTime = performance.now();
-            const resp = await fetch(`${API_URL}/predict`, {
+            const t = performance.now();
+            const r = await fetch(`${API}/predict-url`, {
                 method: 'POST',
-                body: formData,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image_url: url }),
             });
-
-            if (!resp.ok) {
-                const err = await resp.json();
-                throw new Error(err.error || 'Classification failed');
-            }
-
-            const data = await resp.json();
-            const clientLatency = Math.round(performance.now() - startTime);
-
-            loading.classList.remove('visible');
-            renderResults(data, clientLatency);
-
+            if (!r.ok) { const e = await r.json(); throw new Error(e.error); }
+            const d = await r.json();
+            loader.classList.remove('on');
+            renderPreds(d, Math.round(performance.now() - t));
         } catch (err) {
-            loading.classList.remove('visible');
-            showToast(`Error: ${err.message}`);
+            loader.classList.remove('on');
+            showToast(err.message);
+        } finally { btnUrl.disabled = false; }
+    }
+    btnUrl.addEventListener('click', classifyUrl);
+    urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') classifyUrl(); });
+
+    // File classify
+    async function classify(file) {
+        const fd = new FormData();
+        fd.append('image', file);
+        try {
+            const t = performance.now();
+            const r = await fetch(`${API}/predict`, { method: 'POST', body: fd });
+            if (!r.ok) { const e = await r.json(); throw new Error(e.error); }
+            const d = await r.json();
+            loader.classList.remove('on');
+            renderPreds(d, Math.round(performance.now() - t));
+        } catch (err) {
+            loader.classList.remove('on');
+            showToast(err.message);
         }
     }
 
-    // ── Render Predictions ───────────────────────────────────
-    function renderResults(data, clientLatency) {
-        // Status badge
-        if (data.requires_review) {
-            statusBadge.className = 'status-badge needs-review';
-            statusBadge.innerHTML = '⚠ Needs Review';
-        } else {
-            statusBadge.className = 'status-badge auto-tagged';
-            statusBadge.innerHTML = '✓ Auto-Tagged';
-        }
+    function showResult(imgSrc) {
+        previewImg.src = imgSrc;
+        inputCard.style.display = 'none';
+        catsDiv.style.display = 'none';
+        resultCard.classList.add('visible');
+        actions.classList.add('on');
+        loader.classList.add('on');
+    }
 
-        // Prediction bars
-        predictionList.innerHTML = '';
-        data.predictions.forEach((pred, i) => {
-            const pct = (pred.confidence * 100).toFixed(1);
-            const item = document.createElement('div');
-            item.className = `prediction-item pred-${i + 1}`;
-            item.innerHTML = `
-                <div class="pred-header">
-                    <div>
-                        <span class="pred-rank">#${i + 1}</span>
-                        <span class="pred-category">${pred.category}</span>
-                    </div>
-                    <span class="pred-confidence">${pct}%</span>
-                </div>
-                <div class="pred-bar">
-                    <div class="pred-bar-fill" style="width: 0%"></div>
-                </div>
-            `;
-            predictionList.appendChild(item);
+    function renderPreds(data, roundTrip) {
+        badge.className = 'badge ' + (data.requires_review ? 'badge-warn' : 'badge-ok');
+        badge.textContent = data.requires_review ? '⚠ Needs Review' : '✓ Auto-Tagged';
 
-            // Animate bar fill
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    item.querySelector('.pred-bar-fill').style.width = `${pct}%`;
-                });
-            });
+        preds.innerHTML = '';
+        data.predictions.forEach((p, i) => {
+            const pct = (p.confidence * 100).toFixed(1);
+            const el = document.createElement('div');
+            el.className = 'pred';
+            el.innerHTML = `
+                <div class="pred-row">
+                    <div><span class="pred-rank">#${i+1}</span><span class="pred-label">${p.category}</span></div>
+                    <span class="pred-pct">${pct}%</span>
+                </div>
+                <div class="bar"><div class="bar-fill"></div></div>`;
+            preds.appendChild(el);
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                el.querySelector('.bar-fill').style.width = pct + '%';
+            }));
         });
 
-        // Metadata
-        metaFooter.innerHTML = `
-            <span class="meta-item">⚡ Inference: <strong>${data.latency_ms}ms</strong></span>
-            <span class="meta-item">🌐 Round-trip: <strong>${clientLatency}ms</strong></span>
-        `;
+        meta.innerHTML = `
+            <span>⚡ Inference: <strong>${data.latency_ms}ms</strong></span>
+            <span>🌐 Round-trip: <strong>${roundTrip}ms</strong></span>`;
     }
 
-    // ── Reset UI ─────────────────────────────────────────────
     function resetUI() {
-        previewSection.classList.remove('visible');
-        uploadZone.style.display = '';
-        btnNew.classList.remove('visible');
-        predictionList.innerHTML = '';
-        metaFooter.innerHTML = '';
-        fileInput.value = '';
+        resultCard.classList.remove('visible');
+        actions.classList.remove('on');
+        inputCard.style.display = '';
+        catsDiv.style.display = '';
+        preds.innerHTML = ''; meta.innerHTML = '';
+        fileInput.value = ''; urlInput.value = '';
     }
 
-    // ── Toast ────────────────────────────────────────────────
     function showToast(msg) {
         toast.textContent = msg;
-        toast.classList.add('visible');
-        setTimeout(() => toast.classList.remove('visible'), 4000);
+        toast.classList.add('on');
+        setTimeout(() => toast.classList.remove('on'), 4000);
     }
     </script>
 </body>

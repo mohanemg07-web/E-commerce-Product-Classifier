@@ -15,6 +15,7 @@ import json
 import logging
 from io import BytesIO
 
+import requests as http_requests
 from flask import Flask, request, jsonify, render_template
 from PIL import Image
 
@@ -144,6 +145,47 @@ def predict():
         )
         return jsonify(result), 200
 
+    except Exception as e:
+        logger.exception("Inference error")
+        return jsonify({"error": f"Inference failed: {str(e)}"}), 500
+
+
+@app.route("/predict-url", methods=["POST"])
+def predict_url():
+    """
+    Accept an image URL and return Top-3 predictions.
+
+    Expects JSON body: ``{"image_url": "https://..."}``
+    """
+    if engine is None:
+        _load_engine()
+        if engine is None:
+            return jsonify({"error": "Model not loaded."}), 503
+
+    data = request.get_json(silent=True)
+    if not data or "image_url" not in data:
+        return jsonify({"error": "Missing 'image_url' in JSON body."}), 400
+
+    url = data["image_url"]
+
+    try:
+        resp = http_requests.get(url, timeout=10, stream=True,
+                                  headers={"User-Agent": "SmartClassifier/1.0"})
+        resp.raise_for_status()
+        image = Image.open(BytesIO(resp.content)).convert("RGB")
+    except http_requests.RequestException as e:
+        return jsonify({"error": f"Failed to download image: {str(e)}"}), 400
+    except Exception as e:
+        return jsonify({"error": f"Invalid image from URL: {str(e)}"}), 400
+
+    try:
+        result = engine.predict(image, top_k=3)
+        logger.info(
+            f"URL Prediction: {result['predictions'][0]['category']} "
+            f"({result['predictions'][0]['confidence']:.2%}) "
+            f"| {result['latency_ms']}ms | {url[:60]}"
+        )
+        return jsonify(result), 200
     except Exception as e:
         logger.exception("Inference error")
         return jsonify({"error": f"Inference failed: {str(e)}"}), 500
